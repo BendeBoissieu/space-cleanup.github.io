@@ -173,6 +173,17 @@ animate();
 const numberOfObjects = SATELLITES_COUNT + 31
 
 function init() {
+    function removeInstructions() {
+        let instructions = document.getElementById("instructions")
+        instructions.classList.add("animated")
+    }
+    document.onclick = function(e) {
+        removeInstructions();
+    };
+    document.onkeydown = function(e) {
+        removeInstructions();
+    }
+
 
     camera = new THREE.PerspectiveCamera( 25, SCREEN_WIDTH / SCREEN_HEIGHT, 10, 1e7 );
     camera.position.z = radius * 5;
@@ -206,8 +217,8 @@ function init() {
     // lightBox.add(lightSun.position, 'z', -100000, 80000).name('Z').listen();
 
     scene.add( lightSun );
-    const pointLightSunHelper = new THREE.PointLightHelper( lightSun, 1000, 0xFF0000 );
-    scene.add( pointLightSunHelper );
+    // const pointLightSunHelper = new THREE.PointLightHelper( lightSun, 1000, 0xFF0000 );
+    // scene.add( pointLightSunHelper );
 
     //scene.add( cameraHelper );
 
@@ -221,8 +232,8 @@ function init() {
     // lightEarthBox.add(lightEarth, 'intensity', -1000, 20000).name('intensity').listen();
   
     scene.add( lightEarth );
-    const lightEarthHelper = new THREE.PointLightHelper( lightEarth,  1000, 0x00FF00 );
-    scene.add( lightEarthHelper );
+    // const lightEarthHelper = new THREE.PointLightHelper( lightEarth,  1000, 0x00FF00 );
+    // scene.add( lightEarthHelper );
 
 
 
@@ -398,6 +409,7 @@ function onWindowResize() {
 function isColliding(obj1, obj2){
     return (
       Math.abs(obj1.x - obj2.x) < 5 &&
+      Math.abs(obj1.y - obj2.y) < 5 &&
       Math.abs(obj1.z - obj2.z) < 5
     )
   }
@@ -405,22 +417,42 @@ function isColliding(obj1, obj2){
 
 function checkCollisions(){
 
-if(spacecraft.spacecraft){
-    let spacecraftWorldPosition = new THREE.Vector3();
-    spacecraft.spacecraft.getWorldPosition(spacecraftWorldPosition)
-    satellites.forEach(satellite => {
-    if(satellite.oldSatellite){
-        const delta = clock.getDelta();
-        satellite.update(delta);
-        let satelliteWolrdPosition = new THREE.Vector3();
-        satellite.oldSatellite.getWorldPosition(satelliteWolrdPosition)
-        if(isColliding(spacecraftWorldPosition, satelliteWolrdPosition)){
-            scene.remove(satellite.oldSatellite)
-            document.getElementById("counter-cleanup").innerHTML = numberOfObjects - scene.children.length;
+    if(spacecraft.spacecraft){
+        let spacecraftWorldPosition = new THREE.Vector3();
+        let positionSpacecraft = spacecraft.spacecraft.getWorldPosition(spacecraftWorldPosition)
+        satellites.forEach(satellite => {
+        if(satellite.oldSatellite){
+            const delta = clock.getDelta();
+            satellite.update(delta);
+            let satelliteWolrdPosition = new THREE.Vector3();
+            satellite.oldSatellite.getWorldPosition(satelliteWolrdPosition)
+            if(isColliding(spacecraftWorldPosition, satelliteWolrdPosition)){
+                scene.remove(satellite.oldSatellite)
+                document.getElementById("counter-cleanup").innerHTML = numberOfObjects - scene.children.length;
+            }
+        }
+        })
+
+        let warningMessage = document.getElementById("warning-message")
+        warningMessage.classList.remove("visible")
+        if (positionSpacecraft.z < 10120 && positionSpacecraft.z > 6120) {
+            warningMessage.innerHTML = "Carefull you are about to have a collision!"
+            warningMessage.classList.add("visible")
+        }
+
+        if (positionSpacecraft.z < 6120) {
+            warningMessage.innerHTML = "Explosion!"
+            warningMessage.classList.add("visible")
         }
     }
-    })
 }
+
+function updateDashboard(){
+    if(spacecraft.spacecraft){
+        let positionVector = new THREE.Vector3();
+        let positionSpacecraft = spacecraft.spacecraft.getWorldPosition(positionVector)
+        document.getElementById("dashboard-altitude").innerHTML = ((2 * positionSpacecraft.z ) / 100).toFixed(2)
+    }
 }
 
 
@@ -431,6 +463,7 @@ function animate() {
     // spacecraft.update(camera);
     // stats.update();
     checkCollisions()
+    updateDashboard()
 
 }
 

@@ -16,7 +16,7 @@ body
 
 .counter-cleanup {
     position: absolute;
-    bottom: 10px;
+    bottom: 50px;
     left: 10px;
     width: 100px;
     background-color: black;
@@ -25,4 +25,66 @@ body
     border: 3px solid green;
     text-align: center;
     margin: 20px 0;
+}
+
+.spacecraft-dashboard {
+    position: absolute;
+    bottom: 125px;
+    left: 10px;
+    color: white;
+    font-size: 16px;
+    text-align: left;
+    margin: 20px 0;
+    line-height: 2;
+}
+
+.instructions {
+    position: absolute;
+    top: 40px;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    max-width: 500px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    opacity: 1;
+}
+
+.warning-message {
+    position: absolute;
+    top: 40px;
+    color: red;
+    font-size: 16px;
+    font-weight: 700;
+    max-width: 500px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    border: 3px dot red;
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.instructions p{
+    margin-top: 10px;
+}
+
+.fade-out {
+    transition: opacity 1s ease-in-out;
+    -webkit-transition: opacity 1s ease-in-out;
+    -moz-transition:opacity 1s ease-in-out;
+  }
+
+.animated {
+    opacity: 0;
+}
+
+.buttons-insructions {
+    background-color: white;
+    color: black;
+    padding: 3px;
 }
