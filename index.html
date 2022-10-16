@@ -12,6 +12,22 @@
 </head>
 <body>
     <div class="counter-cleanup" id="counter-cleanup">0</div>
+    <div class="warning-message" id="warning-message"></div>
+    <div class="spacecraft-dashboard">
+        <p>Altitude 
+            <span id="dashboard-altitude">0</span>
+            <span>km</span>
+        </p>
+    </div>
+    <div class="instructions fade-out" id="instructions">
+        <p>Press W to move forward
+            <span class="buttons-insructions">W</span>
+        </p>
+        <p>Press S to move forward
+            <span class="buttons-insructions">S</span>
+        </p>
+        <p>Press <span class="buttons-insructions">A</span> / <span class="buttons-insructions">D</span> or arrows or mouse to orientate the spacecraft</p>
+    </div>
     <canvas class="webgl"></canvas>
     <script type="module" src="index.js"></script>
 </body>
