@@ -168,6 +168,12 @@ async function createTrash(){
 let satellites = []
 const SATELLITES_COUNT = 100
 
+let oldSatellitesRemovedUuids = []
+let fuelPercentage = 100
+let progressBarNode = document.querySelectorAll(".progress .bar")
+
+let warningMessage = document.getElementById("warning-message")
+
 init();
 animate();
 const numberOfObjects = SATELLITES_COUNT + 31
@@ -367,10 +373,10 @@ function init() {
     controls = new FlyControls( camera, renderer.domElement );
     //controls = new OrbitControls( camera2, renderer.domElement );
 
-    controls.movementSpeed = 500;
+    controls.movementSpeed = 50
     controls.domElement = renderer.domElement;
     controls.rollSpeed = Math.PI / 100;
-    controls.autoForward = false;
+    controls.autoForward = true;
     controls.dragToLook = false;
 
     //
@@ -414,7 +420,6 @@ function isColliding(obj1, obj2){
     )
   }
 
-
 function checkCollisions(){
 
     if(spacecraft.spacecraft){
@@ -427,33 +432,87 @@ function checkCollisions(){
             let satelliteWolrdPosition = new THREE.Vector3();
             satellite.oldSatellite.getWorldPosition(satelliteWolrdPosition)
             if(isColliding(spacecraftWorldPosition, satelliteWolrdPosition)){
-                scene.remove(satellite.oldSatellite)
-                document.getElementById("counter-cleanup").innerHTML = numberOfObjects - scene.children.length;
+                if (!oldSatellitesRemovedUuids.includes(satellite.oldSatellite.uuid)) {
+                    oldSatellitesRemovedUuids.push(satellite.oldSatellite.uuid)
+                    scene.remove(satellite.oldSatellite)
+                    document.getElementById("counter-cleanup").innerHTML = oldSatellitesRemovedUuids.length
+                }
             }
         }
         })
 
-        let warningMessage = document.getElementById("warning-message")
         warningMessage.classList.remove("visible")
-        if (positionSpacecraft.z < 10120 && positionSpacecraft.z > 6120) {
+
+        let distanceCenter = Math.sqrt( (positionSpacecraft.x * positionSpacecraft.x) +
+                                        (positionSpacecraft.y * positionSpacecraft.y) +
+                                        (positionSpacecraft.z * positionSpacecraft.z)
+                                       )
+        if (distanceCenter < 8000 && distanceCenter > 6371) {
             warningMessage.innerHTML = "Carefull you are about to have a collision!"
             warningMessage.classList.add("visible")
         }
 
-        if (positionSpacecraft.z < 6120) {
+        // Rayon de la terre 6371km
+        if (distanceCenter < 6371) {
             warningMessage.innerHTML = "Explosion!"
             warningMessage.classList.add("visible")
+        }
+
+        updateDashboard(distanceCenter)
+    }
+}
+
+function updateDashboard(distanceCenter){
+    if (distanceCenter) {
+        document.getElementById("dashboard-altitude").innerHTML = (distanceCenter/100).toFixed(2)
+    }
+
+    document.getElementById("dashboard-velocity").innerHTML = (controls.movementSpeed).toFixed(2)
+    document.getElementById("dashboard-fuel").innerHTML = fuelPercentage.toFixed(2)
+    if (progressBarNode) {
+        for (let i = 0; i < progressBarNode.length; i++) {
+            progressBarNode[i].style.width = fuelPercentage.toFixed(2) + "%";
+          }
+    }
+}
+
+function updateSpeed(){
+    if (fuelPercentage <= 0 ) {
+        fuelPercentage = 0
+        if (controls.movementSpeed > 0) {
+            controls.movementSpeed /=  1.0005
+        } else {
+            controls.movementSpeed = 0
+        }
+        warningMessage.innerHTML = "No more fuel"
+        warningMessage.classList.add("visible")
+    } else {
+        if (controls.moveState.forward == 1 ) {
+            if (controls.movementSpeed < 650) {
+                controls.movementSpeed *= 1.005
+            } else {
+                controls.movementSpeed = 650
+            }
+            fuelPercentage -= 0.02
+        }
+        if (controls.moveState.back == 1 ) {
+            if (fuelPercentage <= 0 || controls.movementSpeed < 0 ) {
+                controls.movementSpeed = 0
+             } else {
+                controls.movementSpeed /=  1.005
+                fuelPercentage -= 0.02
+             }
+        }
+        if (controls.moveState.forward == 0 &&  controls.moveState.back == 0) {
+            if (controls.movementSpeed > 0) {
+                controls.movementSpeed /=  1.0005
+            } else {
+                controls.movementSpeed = 0
+            }
         }
     }
 }
 
-function updateDashboard(){
-    if(spacecraft.spacecraft){
-        let positionVector = new THREE.Vector3();
-        let positionSpacecraft = spacecraft.spacecraft.getWorldPosition(positionVector)
-        document.getElementById("dashboard-altitude").innerHTML = ((2 * positionSpacecraft.z ) / 100).toFixed(2)
-    }
-}
 
 
 function animate() {
@@ -464,6 +523,7 @@ function animate() {
     // stats.update();
     checkCollisions()
     updateDashboard()
+    updateSpeed()
 
 }
 

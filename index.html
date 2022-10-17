@@ -14,10 +14,23 @@
     <div class="counter-cleanup" id="counter-cleanup">0</div>
     <div class="warning-message" id="warning-message"></div>
     <div class="spacecraft-dashboard">
+        <p>Inertial Velocity 
+            <span id="dashboard-velocity">0</span>
+            <span>km/h</span>
+        </p>
         <p>Altitude 
             <span id="dashboard-altitude">0</span>
             <span>km</span>
         </p>
+        <p>Fuel
+            <span id="dashboard-fuel">100</span>
+            <span>%</span>
+        </p>
+        <div class="container-progress-bar">
+            <div class="progress">
+                <div class="bar"></div>
+            </div>
+        </div>
     </div>
     <div class="instructions fade-out" id="instructions">
         <p>Press W to move forward
