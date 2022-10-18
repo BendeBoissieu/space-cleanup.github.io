@@ -166,7 +166,7 @@ async function createTrash(){
 }
 
 let satellites = []
-const SATELLITES_COUNT = 100
+const SATELLITES_COUNT = 350
 
 let oldSatellitesRemovedUuids = []
 let fuelPercentage = 100
